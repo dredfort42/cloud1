@@ -1,0 +1,7 @@
+---
+- name: Clean Cloud1
+  hosts: all
+  vars_files:
+    - group_vars/vars.yaml
+  roles:
+    - role: clean_docker

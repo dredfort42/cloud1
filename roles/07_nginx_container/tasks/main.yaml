@@ -1,0 +1,40 @@
+---
+- name: Create Nginx directories
+  ansible.builtin.file:
+    path: "{{ CLOUD_DESTINATION_FOLDER }}/nginx"
+    state: directory
+    owner: "{{ CLOUD_USER }}"
+    group: "{{ CLOUD_USER }}"
+    mode: 0755
+
+- name: Upload Nginx configuration files
+  template:
+    src: "./roles/07_nginx_container/templates/{{ item }}.j2"
+    dest: "{{ CLOUD_DESTINATION_FOLDER }}/nginx/{{ item }}"
+    owner: "{{ CLOUD_USER }}"
+    group: "{{ CLOUD_USER }}"
+    mode: 0777
+  loop:
+    - Dockerfile
+    - nginx.conf
+
+- name: Build Nginx container
+  community.docker.docker_image:
+    name: nginx
+    tag: cloud1
+    source: build
+    build:
+      path: "{{ CLOUD_DESTINATION_FOLDER }}/nginx"
+
+- name: Run Nginx Container
+  community.docker.docker_container:
+    name: nginx
+    image: nginx:cloud1
+    restart_policy: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - pv_html:/var/www/html
+    networks:
+      - name: net_21

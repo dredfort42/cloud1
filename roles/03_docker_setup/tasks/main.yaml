@@ -1,0 +1,41 @@
+---
+- name: Check host directories for persistent volumes
+  stat: 
+    path: "{{ CLOUD_DATA_FOLDER }}"
+  register: dir_status
+
+- name: Create host directories for persistent volumes
+  ansible.builtin.file:
+    path: "{{ CLOUD_DATA_FOLDER }}/{{ item }}"
+    state: directory
+    owner: "{{ CLOUD_USER }}"
+    group: "{{ CLOUD_USER }}"
+    mode: 0755
+  loop:
+    - pv_db
+    - pv_html
+  when: not dir_status.stat.exists
+
+- name: Create docker persistent volumes
+  docker_volume:
+    name: "{{ item }}"
+    driver: local
+    driver_options:
+      type: none
+      o: bind
+      device: "{{ CLOUD_DATA_FOLDER }}/{{ item }}"
+  loop:
+    - pv_db
+    - pv_html
+
+- name: Create docker network
+  docker_network:
+    name: net_21
+
+- name: Copy sources
+  copy:
+    src: ./srcs/
+    dest: "{{ CLOUD_DESTINATION_FOLDER }}"
+    owner: "{{ CLOUD_USER }}"
+    group: "{{ CLOUD_USER }}"
+    mode: 0755

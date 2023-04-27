@@ -1,0 +1,30 @@
+---
+- name: Upload Wordpress configuration files
+  template:
+    src: "./roles/06_wordpress_container/templates/{{ item }}.j2"
+    dest: "{{ CLOUD_DESTINATION_FOLDER }}/wordpress/{{ item }}"
+    owner: "{{ CLOUD_USER }}"
+    group: "{{ CLOUD_USER }}"
+    mode: 0777
+  loop:
+    - Dockerfile
+    - entrypoint.sh
+    - wp-config.conf
+
+- name: Build Wordpress container
+  community.docker.docker_image:
+    name: wordpress
+    tag: cloud1
+    source: build
+    build:
+      path: "{{ CLOUD_DESTINATION_FOLDER }}/wordpress"
+
+- name: Run Wordpress Container
+  community.docker.docker_container:
+    name: wordpress
+    image: wordpress:cloud1
+    restart_policy: always
+    volumes:
+      - pv_html:/var/www/html
+    networks:
+      - name: net_21

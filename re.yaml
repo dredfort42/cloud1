@@ -1,0 +1,16 @@
+---
+- name: Rebuild Cloud1
+  hosts: all
+  vars_files:
+    - group_vars/vars.yaml
+    - group_vars/secrets.yaml
+  roles:
+    - role: clean_docker
+    - role: clean_system
+    - role: 01_system_setup
+    - role: 02_docker_install
+    - role: 03_docker_setup
+    - role: 04_mariadb_contairer
+    - role: 05_adminer_container
+    - role: 06_wordpress_container
+    - role: 07_nginx_container

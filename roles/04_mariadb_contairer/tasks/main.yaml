@@ -1,0 +1,30 @@
+---
+- name: Upload Mariadb configuration files
+  template:
+    src: "./roles/04_mariadb_contairer/templates/{{ item }}.j2"
+    dest: "{{ CLOUD_DESTINATION_FOLDER }}/mariadb/{{ item }}"
+    owner: "{{ CLOUD_USER }}"
+    group: "{{ CLOUD_USER }}"
+    mode: 0777
+  loop:
+    - mariadb.conf
+    - setup.sql
+
+- name: Build Mariadb image
+  community.docker.docker_image:
+    name: mariadb
+    tag: cloud1
+    source: build
+    build:
+      path: "{{ CLOUD_DESTINATION_FOLDER }}/mariadb/"
+
+- name: Run Mariadb container
+  community.docker.docker_container:
+    name: mariadb
+    image: mariadb:cloud1
+    state: started
+    tty: true
+    volumes:
+      - pv_db:/var/lib/mysql
+    networks:
+      - name: net_21

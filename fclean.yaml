@@ -1,0 +1,8 @@
+---
+- name: FClean Cloud1 server
+  hosts: all
+  vars_files:
+    - group_vars/vars.yaml
+  roles:
+    - role: clean_docker
+    - role: clean_system

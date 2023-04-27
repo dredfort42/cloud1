@@ -1,0 +1,7 @@
+---
+server:
+  hosts:
+    rupl.org: 
+      ansible_host: 158.160.25.86
+    # acsol.ru:
+    #   ansible_host: 84.201.152.185

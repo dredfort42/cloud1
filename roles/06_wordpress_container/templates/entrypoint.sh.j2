@@ -1,0 +1,21 @@
+if [ ! -f /var/www/html/{{ inventory_hostname }}/wp-config.php ]
+then
+    mv wp-config.php /var/www/html/{{ inventory_hostname }}/wp-config.php
+
+    cd /var/www/html/{{ inventory_hostname }}
+
+    wp core install --allow-root \
+        --url={{ inventory_hostname }} \
+        --title={{ WORDPRESS_NAME }} \
+        --admin_user={{ WORDPRESS_ROOT_NAME }} \
+        --admin_password={{ WORDPRESS_ROOT_PASS }} \
+        --admin_email={{ WORDPRESS_ROOT_EMAIL }}
+
+    wp user create --allow-root \
+        {{ WORDPRESS_USER_NAME }} \
+        {{ WORDPRESS_USER_EMAIL }} \
+        --user_pass={{ WORDPRESS_USER_PASS }} \
+        --role=author
+fi
+
+/usr/sbin/php-fpm7.3 -F

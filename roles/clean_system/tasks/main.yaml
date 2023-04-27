@@ -1,0 +1,38 @@
+---
+- name: Disable UFW firewall
+  ufw:
+    state: disabled
+
+- name: Remove persistent volumes directorie
+  ansible.builtin.file:
+    path: "{{ CLOUD_DATA_FOLDER }}"
+    state: absent
+
+- name: Desinstall Docker python module
+  pip:
+    name: docker
+    state: absent
+
+- name: Remove system packages required for Docker 
+  apt:
+    pkg:
+      - apt-transport-https
+      - aptitude
+      - ca-certificates
+      - curl
+      - docker.io
+      - gnupg
+      - lsb-release
+      - python3-pip
+      - python3-setuptools
+      - software-properties-common
+      - ufw
+      - virtualenv
+      - wget
+    state: absent
+    update_cache: true
+
+- name: Clean
+  apt:
+    autoremove: yes
+    purge: yes    

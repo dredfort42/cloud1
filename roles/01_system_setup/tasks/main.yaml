@@ -1,0 +1,39 @@
+---
+- name: Set hostname
+  hostname:
+        name: "{{ inventory_hostname }}"
+
+- name: Add nameserver to resolv.conf
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver 8.8.8.8"
+
+- name: Installing firewall
+  apt: 
+    name: ["ufw"]
+    state: latest
+    update_cache: true
+
+- name: Allow all outgoing traffic
+  ufw: 
+    default: allow
+    direction: outgoing
+
+- name: Deny all incoming traffic
+  ufw: 
+    default: deny
+    direction: incoming
+
+- name: Allow ports for incomming traffic
+  ufw:
+    port: "{{ item }}"
+    rule: allow
+  loop: 
+    - 22
+    - 80
+    - 443
+    - 8080
+
+- name: Enable UFW firewall
+  ufw:
+    state: enabled

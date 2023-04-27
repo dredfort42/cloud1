@@ -1,0 +1,11 @@
+---
+- name: Run Adminer container
+  community.docker.docker_container:
+    name: adminer
+    image: adminer
+    restart_policy: always
+    state: started
+    ports:
+      - 8080:8080
+    networks:
+      - name: net_21

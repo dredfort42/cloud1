@@ -1,0 +1,57 @@
+---
+- name: Get running containers
+  docker_host_info:
+    containers: yes
+  register: docker_info
+
+- name: Stop running containers
+  docker_container:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ docker_info.containers | map(attribute='Id') | list }}"
+
+- name: Remove docker containers
+  docker_container:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ docker_info.containers | map(attribute='Id') | list }}"
+    
+- name: Get details of all images
+  docker_host_info:
+    images: yes
+    verbose_output: yes
+  register: docker_info
+
+- name: Remove all images
+  docker_image:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ docker_info.images | map(attribute='Id') | list }}"
+
+- name: Remove persistent volumes
+  docker_volume:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - pv_db
+    - pv_html
+
+- name: Remove Dockerfiles directorie
+  ansible.builtin.file:
+    path: "{{ CLOUD_DESTINATION_FOLDER }}"
+    state: absent
+
+- name: Remove a docker network
+  docker_network:
+    name: net_21
+    state: absent
+
+- name: Prune everything (including non-dangling images)
+  community.docker.docker_prune:
+    containers: yes
+    images: yes
+    images_filters:
+      dangling: false
+    volumes: yes
+    networks: yes
+    builder_cache: yes
